@@ -183,6 +183,30 @@
     }
     .balance-card .amount { font-size: 36px; font-weight: 800; color: var(--accent); }
     .balance-card .label { font-size: 13px; opacity: 0.85; }
+    .pie-chart {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      margin: 4px auto 16px;
+      border: 3px solid #1a1a1a;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+    .pie-legend {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 13px;
+      flex-wrap: wrap;
+    }
+    .pie-legend-item { display: flex; align-items: center; gap: 6px; }
+    .pie-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .pie-swatch.gold { background: var(--accent); }
+    .pie-swatch.black { background: #1a1a1a; }
     .entry-row {
       display: flex;
       justify-content: space-between;
@@ -268,7 +292,7 @@
       border-radius: 8px;
       border: 1.5px solid var(--border);
       background: white;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       text-align: center;
@@ -327,6 +351,14 @@
         <div class="amount" id="balanceAmount">$0</div>
         <div class="label">Current cohort balance</div>
       </div>
+      <div class="card" style="text-align: center;">
+        <div id="pieChart" class="pie-chart"></div>
+        <div class="pie-legend">
+          <div class="pie-legend-item"><span class="pie-swatch gold"></span> Remaining: <strong id="pieRemaining">$0</strong></div>
+          <div class="pie-legend-item"><span class="pie-swatch black"></span> Spent: <strong id="pieSpent">$0</strong></div>
+        </div>
+        <div class="meta" style="margin-top: 6px;">of $<span id="pieTotal">6,000</span> starting budget</div>
+      </div>
       <div class="card" id="budgetList">
         <div class="spinner">Loading…</div>
       </div>
@@ -345,7 +377,7 @@
     <div class="tab" id="advocacy">
       <div class="card">
         <h3>Anonymous Advocacy Intake</h3>
-        <p class="meta">This form does not collect your name, email, or any identifying information. Submissions go directly to a shared list reviewed by cohort reps / faculty liaisons.</p>
+        <p class="meta">This form does not collect your name, email, or any identifying information. Submissions go directly to a list kept by the cohort rep and will be featured in faculty and administrative check-ins.</p>
       </div>
       <div id="advocacyFormWrap">
         <div class="card">
@@ -547,11 +579,15 @@
     document.getElementById('icsDownload').addEventListener('click', downloadIcs);
 
     /* ---------- BUDGET ---------- */
+    const STARTING_BUDGET = 6000; // update this if the cohort's starting budget changes
+
     function loadBudget() {
       apiGet('getBudget').then(renderBudget);
     }
     function renderBudget(data) {
       document.getElementById('balanceAmount').textContent = formatMoney(data.balance);
+      renderPieChart(data.balance);
+
       const el = document.getElementById('budgetList');
       if (!data.entries.length) {
         el.innerHTML = '<div class="empty">No entries yet.</div>';
@@ -569,6 +605,19 @@
           </div>
         </div>
       `).join('');
+    }
+    function renderPieChart(balance) {
+      const remaining = Math.max(0, balance);
+      const spent = Math.max(0, STARTING_BUDGET - balance);
+      const total = remaining + spent || 1;
+      const remainingPct = (remaining / total) * 100;
+
+      const chart = document.getElementById('pieChart');
+      chart.style.background = `conic-gradient(var(--accent) 0% ${remainingPct}%, #1a1a1a ${remainingPct}% 100%)`;
+
+      document.getElementById('pieRemaining').textContent = formatMoney(remaining);
+      document.getElementById('pieSpent').textContent = formatMoney(spent);
+      document.getElementById('pieTotal').textContent = STARTING_BUDGET.toLocaleString();
     }
     function submitBudget() {
       const entry = {
@@ -609,9 +658,9 @@
           <h3>${escapeHtml(idea.Title)}</h3>
           ${idea.Description ? `<div class="meta">${escapeHtml(idea.Description)}</div>` : ''}
           <div class="vote-row">
-            <button class="vote-btn Big ${idea.myVote === 'Big' ? 'selected' : ''}" onclick="castVote('${idea.ID}','Big')">🔥 Big<span class="count">${idea.tallies.Big}</span></button>
-            <button class="vote-btn Some ${idea.myVote === 'Some' ? 'selected' : ''}" onclick="castVote('${idea.ID}','Some')">🙂 Some<span class="count">${idea.tallies.Some}</span></button>
-            <button class="vote-btn No ${idea.myVote === 'No' ? 'selected' : ''}" onclick="castVote('${idea.ID}','No')">🚫 No<span class="count">${idea.tallies.No}</span></button>
+            <button class="vote-btn Big ${idea.myVote === 'Big' ? 'selected' : ''}" onclick="castVote('${idea.ID}','Big')">🔥 Big Interest<span class="count">${idea.tallies.Big}</span></button>
+            <button class="vote-btn Some ${idea.myVote === 'Some' ? 'selected' : ''}" onclick="castVote('${idea.ID}','Some')">🙂 Some Interest<span class="count">${idea.tallies.Some}</span></button>
+            <button class="vote-btn No ${idea.myVote === 'No' ? 'selected' : ''}" onclick="castVote('${idea.ID}','No')">🚫 No Interest<span class="count">${idea.tallies.No}</span></button>
           </div>
         </div>
       `).join('');
