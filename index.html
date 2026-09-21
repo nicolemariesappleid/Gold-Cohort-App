@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>The Gold Standard</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap');
+    :root {
+      --accent: #D4AF37;
+      --accent-dark: #8B6F13;
+      --ink: #2b2004;
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2130;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, #1a1a1a, #3a2e0f);
+      color: var(--accent);
+      padding: 22px 20px 18px;
+      text-align: center;
+    }
+    header .logotype {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    header .subtitle {
+      font-size: 11px;
+      color: #9c8a55;
+      margin-top: 4px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    nav {
+      display: flex;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav button {
+      flex: 1;
+      padding: 14px 8px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    nav button.active {
+      color: var(--accent-dark);
+      border-bottom: 3px solid var(--accent);
+    }
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 60px;
+    }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .card h3 {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+    }
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 2px 0;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+    .tag.Assignment { background: #fee2e2; color: #991b1b; }
+    .tag.Social { background: #fdf3d8; color: #8B6F13; }
+    a.link-pill {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--accent-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a1a1a, #3a2e0f);
+      border: 1.5px solid var(--accent);
+      color: var(--accent);
+      font-size: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      z-index: 20;
+    }
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 30;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal {
+      background: white;
+      width: 100%;
+      max-width: 640px;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal h2 { margin-top: 0; font-size: 18px; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 10px 0 4px;
+      color: var(--muted);
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    .btn-primary { background: linear-gradient(135deg, #e6c667, var(--accent)); color: var(--ink); }
+    .btn-secondary { background: #f3f4f6; color: var(--text); margin-top: 8px; }
+    .balance-card {
+      background: linear-gradient(135deg, #1a1a1a, var(--accent-dark));
+      color: #fff;
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .balance-card .amount { font-size: 36px; font-weight: 800; color: var(--accent); }
+    .balance-card .label { font-size: 13px; opacity: 0.85; }
+    .entry-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .entry-row:last-child { border-bottom: none; }
+    .amt-pos { color: var(--success); font-weight: 700; }
+    .amt-neg { color: var(--danger); font-weight: 700; }
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 40px 20px;
+      font-size: 14px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2130;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 40;
+    }
+    .toast.show { opacity: 1; }
+    .del-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      float: right;
+    }
+    .ics-btn {
+      display: block;
+      text-align: center;
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      margin-bottom: 12px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+    .success-box {
+      text-align: center;
+      padding: 30px 20px;
+    }
+    .success-box .checkmark {
+      font-size: 48px;
+      color: var(--success);
+    }
+    .spinner {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px;
+      font-size: 14px;
+    }
+    .idea-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #f0f0f3;
+    }
+    .vote-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .vote-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: white;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .vote-btn .count {
+      display: block;
+      font-size: 15px;
+      margin-top: 2px;
+    }
+    .vote-btn.Big.selected { background: #dcfce7; border-color: var(--success); color: #166534; }
+    .vote-btn.Some.selected { background: #fef9c3; border-color: #ca8a04; color: #854d0e; }
+    .vote-btn.No.selected { background: #fee2e2; border-color: var(--danger); color: #991b1b; }
+    .file-input-wrap {
+      border: 1.5px dashed var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .file-preview {
+      width: 100%;
+      max-height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logotype">The Gold Standard</div>
+    <div class="subtitle">Cohort Hub</div>
+  </header>
+  <nav>
+    <button class="tab-btn active" data-tab="calendar">Calendar</button>
+    <button class="tab-btn" data-tab="budget">Budget</button>
+    <button class="tab-btn" data-tab="ideas">Ideas</button>
+    <button class="tab-btn" data-tab="advocacy">Advocacy</button>
+  </nav>
+
+  <main>
+    <!-- CALENDAR -->
+    <div class="tab active" id="calendar">
+      <a class="ics-btn" id="icsDownload">📅 Download / Subscribe (.ics for Outlook, Google, Apple Calendar)</a>
+      <div id="eventsList" class="spinner">Loading events…</div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="tab" id="budget">
+      <div class="balance-card">
+        <div class="amount" id="balanceAmount">$0</div>
+        <div class="label">Current cohort balance</div>
+      </div>
+      <div class="card" id="budgetList">
+        <div class="spinner">Loading…</div>
+      </div>
+    </div>
+
+    <!-- IDEAS / VOTING -->
+    <div class="tab" id="ideas">
+      <div class="card">
+        <h3>Vote on event ideas</h3>
+        <p class="meta">Tap how interested you are in each idea. You can change your vote anytime. Tap + to suggest your own.</p>
+      </div>
+      <div id="ideasList" class="spinner">Loading ideas…</div>
+    </div>
+
+    <!-- ADVOCACY -->
+    <div class="tab" id="advocacy">
+      <div class="card">
+        <h3>Anonymous Advocacy Intake</h3>
+        <p class="meta">This form does not collect your name, email, or any identifying information. Submissions go directly to a shared list reviewed by cohort reps / faculty liaisons.</p>
+      </div>
+      <div id="advocacyFormWrap">
+        <div class="card">
+          <label>Category</label>
+          <select id="advCategory">
+            <option>Academic / Curriculum</option>
+            <option>Faculty Concern</option>
+            <option>Facilities</option>
+            <option>Career Services</option>
+            <option>Other</option>
+          </select>
+          <label>Your message</label>
+          <textarea id="advMessage" placeholder="Describe the issue or request. Avoid including your name or other identifying details if you want to remain anonymous."></textarea>
+          <button class="btn btn-primary" onclick="submitAdvocacy()">Submit anonymously</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <button class="fab" id="fab" onclick="openModal()">+</button>
+
+  <!-- ADD EVENT MODAL -->
+  <div class="modal-backdrop" id="eventModal">
+    <div class="modal">
+      <h2>Add Event</h2>
+      <label>Title</label>
+      <input id="evTitle" placeholder="e.g. Marketing Case Due">
+      <label>Type</label>
+      <select id="evType">
+        <option>Assignment</option>
+        <option>Social</option>
+      </select>
+      <label>Date</label>
+      <input id="evDate" type="date">
+      <label>Time (optional)</label>
+      <input id="evTime" type="time">
+      <label>Location (optional)</label>
+      <input id="evLocation" placeholder="e.g. Room 204, or leave blank">
+      <label>Link (optional — Partiful, Zoom, etc.)</label>
+      <input id="evLink" placeholder="https://partiful.com/...">
+      <label>Notes (optional)</label>
+      <textarea id="evNotes"></textarea>
+      <button class="btn btn-primary" onclick="submitEvent()">Add Event</button>
+      <button class="btn btn-secondary" onclick="closeModal('eventModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ADD BUDGET MODAL -->
+  <div class="modal-backdrop" id="budgetModal">
+    <div class="modal">
+      <h2>Add Budget Entry</h2>
+      <label>Description</label>
+      <input id="bgDesc" placeholder="e.g. Venue deposit, or Sponsorship income">
+      <label>Amount</label>
+      <input id="bgAmount" type="number" step="0.01" placeholder="Use negative for expenses, e.g. -150">
+      <label>Date</label>
+      <input id="bgDate" type="date">
+      <button class="btn btn-primary" onclick="submitBudget()">Add Entry</button>
+      <button class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ADD/SUGGEST IDEA MODAL -->
+  <div class="modal-backdrop" id="ideaModal">
+    <div class="modal">
+      <h2>Suggest an Event Idea</h2>
+      <label>Title</label>
+      <input id="ideaTitle" placeholder="e.g. Beach bonfire night">
+      <label>Description (optional)</label>
+      <textarea id="ideaDescription" placeholder="What's the vibe, rough date, location idea, etc."></textarea>
+      <label>Image (optional)</label>
+      <div class="file-input-wrap" onclick="document.getElementById('ideaImageInput').click()">
+        📷 Tap to add a photo
+      </div>
+      <input type="file" id="ideaImageInput" accept="image/*" style="display:none" onchange="previewIdeaImage(event)">
+      <img id="ideaImagePreview" class="file-preview">
+      <button class="btn btn-primary" onclick="submitIdea()">Post Idea</button>
+      <button class="btn btn-secondary" onclick="closeModal('ideaModal')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzEnlMV-LTkhDG7oSAkDwjFz-O8HN3wpZHMobOyyw6tdVYF4IjN98vPcd5Z3Nfbq8VU/exec';
+
+    function apiGet(action, params) {
+      params = params || {};
+      const qs = new URLSearchParams(Object.assign({ action: action }, params)).toString();
+      return fetch(API_URL + '?' + qs).then(r => r.json());
+    }
+    function apiPost(action, payload) {
+      return fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight
+        body: JSON.stringify({ action: action, payload: payload })
+      }).then(r => r.json());
+    }
+    let currentTab = 'calendar';
+    let cachedEvents = [];
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === tab));
+      document.getElementById('fab').style.display = (tab === 'advocacy') ? 'none' : 'block';
+      if (tab === 'ideas') loadIdeas();
+    }
+
+    /* anonymous per-browser voter id, so votes can be changed but not duplicated */
+    function getVoterId() {
+      let vid = localStorage.getItem('cohortHubVoterId');
+      if (!vid) {
+        vid = 'v_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem('cohortHubVoterId', vid);
+      }
+      return vid;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function openModal() {
+      if (currentTab === 'calendar') document.getElementById('eventModal').classList.add('active');
+      if (currentTab === 'budget') document.getElementById('budgetModal').classList.add('active');
+      if (currentTab === 'ideas') document.getElementById('ideaModal').classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    /* ---------- CALENDAR ---------- */
+    function loadEvents() {
+      apiGet('getEvents').then(renderEvents);
+    }
+    function renderEvents(events) {
+      cachedEvents = events;
+      const el = document.getElementById('eventsList');
+      if (!events.length) {
+        el.innerHTML = '<div class="empty">No events yet. Tap + to add one.</div>';
+        return;
+      }
+      el.innerHTML = events.map(e => `
+        <div class="card">
+          <span class="tag ${e.Type}">${e.Type}</span>
+          <button class="del-btn" onclick="removeEvent('${e.ID}')">delete</button>
+          <h3>${escapeHtml(e.Title)}</h3>
+          <div class="meta">${formatDate(e.Date)}${e.Time ? ' · ' + e.Time : ''}</div>
+          ${e.Location ? `<div class="meta">📍 ${escapeHtml(e.Location)}</div>` : ''}
+          ${e.Notes ? `<div class="meta">${escapeHtml(e.Notes)}</div>` : ''}
+          ${e.Link ? `<a class="link-pill" href="${e.Link}" target="_blank">Open link →</a>` : ''}
+        </div>
+      `).join('');
+    }
+    function submitEvent() {
+      const event = {
+        title: document.getElementById('evTitle').value,
+        type: document.getElementById('evType').value,
+        date: document.getElementById('evDate').value,
+        time: document.getElementById('evTime').value,
+        location: document.getElementById('evLocation').value,
+        link: document.getElementById('evLink').value,
+        notes: document.getElementById('evNotes').value
+      };
+      if (!event.title || !event.date) { showToast('Title and date are required'); return; }
+      apiPost('addEvent', event).then(() => {
+        closeModal('eventModal');
+        showToast('Event added');
+        loadEvents();
+        ['evTitle','evDate','evTime','evLocation','evLink','evNotes'].forEach(id => document.getElementById(id).value = '');
+      });
+    }
+    function removeEvent(id) {
+      if (!confirm('Delete this event?')) return;
+      apiPost('deleteEvent', { id: id }).then(() => { showToast('Deleted'); loadEvents(); });
+    }
+
+    function downloadIcs() {
+      let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CohortHub//EN\n';
+      cachedEvents.forEach(e => {
+        const dateStr = (e.Date || '').replace(/-/g, '');
+        ics += `BEGIN:VEVENT\nUID:${e.ID}@cohorthub\nDTSTAMP:${dateStr}T000000Z\nDTSTART;VALUE=DATE:${dateStr}\nSUMMARY:${(e.Title||'').replace(/\n/g,' ')}\nDESCRIPTION:${(e.Notes||'').replace(/\n/g,' ')}\nLOCATION:${(e.Location||'').replace(/\n/g,' ')}\nEND:VEVENT\n`;
+      });
+      ics += 'END:VCALENDAR';
+      const blob = new Blob([ics], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'cohort-calendar.ics';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    document.getElementById('icsDownload').addEventListener('click', downloadIcs);
+
+    /* ---------- BUDGET ---------- */
+    function loadBudget() {
+      apiGet('getBudget').then(renderBudget);
+    }
+    function renderBudget(data) {
+      document.getElementById('balanceAmount').textContent = formatMoney(data.balance);
+      const el = document.getElementById('budgetList');
+      if (!data.entries.length) {
+        el.innerHTML = '<div class="empty">No entries yet.</div>';
+        return;
+      }
+      el.innerHTML = data.entries.slice().reverse().map(e => `
+        <div class="entry-row">
+          <div>
+            <div>${escapeHtml(e.Description)}</div>
+            <div class="meta">${formatDate(e.Date)}</div>
+          </div>
+          <div>
+            <span class="${e.Amount >= 0 ? 'amt-pos' : 'amt-neg'}">${formatMoney(e.Amount)}</span>
+            <button class="del-btn" onclick="removeBudget('${e.ID}')">×</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function submitBudget() {
+      const entry = {
+        description: document.getElementById('bgDesc').value,
+        amount: document.getElementById('bgAmount').value,
+        date: document.getElementById('bgDate').value
+      };
+      if (!entry.description || !entry.amount) { showToast('Description and amount are required'); return; }
+      apiPost('addBudgetEntry', entry).then(() => {
+        closeModal('budgetModal');
+        showToast('Entry added');
+        loadBudget();
+        document.getElementById('bgDesc').value = '';
+        document.getElementById('bgAmount').value = '';
+      });
+    }
+    function removeBudget(id) {
+      if (!confirm('Delete this entry?')) return;
+      apiPost('deleteBudgetEntry', { id: id }).then(() => { showToast('Deleted'); loadBudget(); });
+    }
+
+    /* ---------- IDEAS / VOTING ---------- */
+    let ideaImageBase64 = null;
+    let ideaImageMimeType = null;
+
+    function loadIdeas() {
+      apiGet('getIdeas', { voterId: getVoterId() }).then(renderIdeas);
+    }
+    function renderIdeas(ideas) {
+      const el = document.getElementById('ideasList');
+      if (!ideas.length) {
+        el.innerHTML = '<div class="empty">No ideas yet. Tap + to suggest one.</div>';
+        return;
+      }
+      el.innerHTML = ideas.map(idea => `
+        <div class="card">
+          ${idea.ImageUrl ? `<img class="idea-img" src="${idea.ImageUrl}">` : ''}
+          <h3>${escapeHtml(idea.Title)}</h3>
+          ${idea.Description ? `<div class="meta">${escapeHtml(idea.Description)}</div>` : ''}
+          <div class="vote-row">
+            <button class="vote-btn Big ${idea.myVote === 'Big' ? 'selected' : ''}" onclick="castVote('${idea.ID}','Big')">🔥 Big<span class="count">${idea.tallies.Big}</span></button>
+            <button class="vote-btn Some ${idea.myVote === 'Some' ? 'selected' : ''}" onclick="castVote('${idea.ID}','Some')">🙂 Some<span class="count">${idea.tallies.Some}</span></button>
+            <button class="vote-btn No ${idea.myVote === 'No' ? 'selected' : ''}" onclick="castVote('${idea.ID}','No')">🚫 No<span class="count">${idea.tallies.No}</span></button>
+          </div>
+        </div>
+      `).join('');
+    }
+    function castVote(ideaId, vote) {
+      apiPost('voteOnIdea', { ideaId: ideaId, voterId: getVoterId(), vote: vote }).then(loadIdeas);
+    }
+    function previewIdeaImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 4 * 1024 * 1024) { showToast('Image too large — please use one under 4MB'); event.target.value = ''; return; }
+      ideaImageMimeType = file.type;
+      const reader = new FileReader();
+      reader.onload = () => {
+        ideaImageBase64 = reader.result.split(',')[1];
+        const preview = document.getElementById('ideaImagePreview');
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+    function submitIdea() {
+      const idea = {
+        title: document.getElementById('ideaTitle').value,
+        description: document.getElementById('ideaDescription').value,
+        imageBase64: ideaImageBase64,
+        imageMimeType: ideaImageMimeType
+      };
+      if (!idea.title.trim()) { showToast('Title is required'); return; }
+      apiPost('addIdea', idea).then(() => {
+        closeModal('ideaModal');
+        showToast('Idea posted');
+        loadIdeas();
+        document.getElementById('ideaTitle').value = '';
+        document.getElementById('ideaDescription').value = '';
+        document.getElementById('ideaImageInput').value = '';
+        document.getElementById('ideaImagePreview').style.display = 'none';
+        ideaImageBase64 = null; ideaImageMimeType = null;
+      });
+    }
+
+    /* ---------- ADVOCACY ---------- */
+    function submitAdvocacy() {
+      const submission = {
+        category: document.getElementById('advCategory').value,
+        message: document.getElementById('advMessage').value
+      };
+      if (!submission.message.trim()) { showToast('Please enter a message'); return; }
+      apiPost('submitAdvocacy', submission).then(() => {
+        document.getElementById('advocacyFormWrap').innerHTML = `
+          <div class="card success-box">
+            <div class="checkmark">✓</div>
+            <h3>Submitted anonymously</h3>
+            <p class="meta">Thank you — your submission has been recorded with no identifying information.</p>
+          </div>`;
+      });
+    }
+
+    /* ---------- HELPERS ---------- */
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+    function formatMoney(n) {
+      const sign = n < 0 ? '-' : '';
+      return sign + '$' + Math.abs(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    function formatDate(d) {
+      if (!d) return '';
+      const parts = d.split('-');
+      if (parts.length !== 3) return d;
+      const dt = new Date(parts[0], parts[1]-1, parts[2]);
+      return dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    loadEvents();
+    loadBudget();
+  </script>
+</body>
+</html>
