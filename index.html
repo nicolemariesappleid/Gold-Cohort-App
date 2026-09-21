@@ -533,7 +533,6 @@
       el.innerHTML = events.map(e => `
         <div class="card">
           <span class="tag ${e.Type}">${e.Type}</span>
-          <button class="del-btn" onclick="removeEvent('${e.ID}')">delete</button>
           <h3>${escapeHtml(e.Title)}</h3>
           <div class="meta">${formatDate(e.Date)}${e.Time ? ' · ' + e.Time : ''}</div>
           ${e.Location ? `<div class="meta">📍 ${escapeHtml(e.Location)}</div>` : ''}
@@ -559,10 +558,6 @@
         loadEvents();
         ['evTitle','evDate','evTime','evLocation','evLink','evNotes'].forEach(id => document.getElementById(id).value = '');
       });
-    }
-    function removeEvent(id) {
-      if (!confirm('Delete this event?')) return;
-      apiPost('deleteEvent', { id: id }).then(() => { showToast('Deleted'); loadEvents(); });
     }
 
     function downloadIcs() {
